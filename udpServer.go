@@ -4,13 +4,16 @@ import (
 	"fmt"
 	"math/rand"
 	"net"
-	"strconv"
 	"strings"
 	"time"
 )
 
 func random(min, max int) int {
 	return rand.Intn(max-min) + min
+}
+
+func sendToBoard() {
+
 }
 
 func main() {
@@ -32,8 +35,20 @@ func main() {
 	buffer := make([]byte, 1024)
 	rand.Seed(time.Now().Unix())
 
+	// connect to local Python client
+	connect := "174.16.236.178:6789"
+
+	raddr, err := net.ResolveUDPAddr("udp4", connect)
+	conn2, err := net.DialUDP("udp4", nil, raddr)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	defer conn2.Close()
+
 	for {
-		n, addr, err := conn.ReadFromUDP(buffer)
+		n, _, err := conn.ReadFromUDP(buffer)
 		fmt.Print("-> ", string(buffer[0:n-1]))
 
 		if strings.TrimSpace(string(buffer[0:n])) == "STOP" {
@@ -41,9 +56,9 @@ func main() {
 			return
 		}
 
-		data := []byte(strconv.Itoa(random(1, 1001)))
+		data := []byte(buffer[0 : n-1])
 		fmt.Printf("data: %s\n", string(data))
-		_, err = conn.WriteToUDP(data, addr)
+		_, err = conn.WriteToUDP(data, raddr)
 		if err != nil {
 			fmt.Println(err)
 			return
