@@ -35,20 +35,8 @@ func main() {
 	buffer := make([]byte, 1024)
 	rand.Seed(time.Now().Unix())
 
-	// connect to local Python client
-	connect := "174.16.236.178:6789"
-
-	raddr, err := net.ResolveUDPAddr("udp4", connect)
-	conn2, err := net.DialUDP("udp4", nil, raddr)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	defer conn2.Close()
-
 	for {
-		n, _, err := conn.ReadFromUDP(buffer)
+		n, addr, err := conn.ReadFromUDP(buffer)
 		fmt.Print("-> ", string(buffer[0:n-1]))
 
 		if strings.TrimSpace(string(buffer[0:n])) == "STOP" {
@@ -58,7 +46,7 @@ func main() {
 
 		data := []byte(buffer[0 : n-1])
 		fmt.Printf("data: %s\n", string(data))
-		_, err = conn.WriteToUDP(data, raddr)
+		_, err = conn.WriteToUDP(data, addr)
 		if err != nil {
 			fmt.Println(err)
 			return
