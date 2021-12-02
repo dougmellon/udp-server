@@ -14,7 +14,7 @@ func random(min, max int) int {
 }
 
 func main() {
-	s, err := net.ResolveUDPAddr("udp4", ":80")
+	s, err := net.ResolveUDPAddr("udp4", ":8080")
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -24,6 +24,8 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 		return
+	} else {
+		fmt.Println("UDP available on port 8080")
 	}
 
 	defer conn.Close()
