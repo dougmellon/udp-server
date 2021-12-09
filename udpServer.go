@@ -12,12 +12,8 @@ func random(min, max int) int {
 	return rand.Intn(max-min) + min
 }
 
-func sendToBoard() {
-
-}
-
 func main() {
-	s, err := net.ResolveUDPAddr("udp4", ":8080")
+	s, err := net.ResolveUDPAddr("udp4", ":8081")
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -28,12 +24,23 @@ func main() {
 		fmt.Println(err)
 		return
 	} else {
-		fmt.Println("UDP available on port 8080")
+		fmt.Println("UDP server available on port 8081")
 	}
 
 	defer conn.Close()
 	buffer := make([]byte, 1024)
 	rand.Seed(time.Now().Unix())
+
+	// send setup
+	connect := "127.0.0.1:8080"
+	raddr, err := net.ResolveUDPAddr("udp4", connect)
+	connTwo, err := net.DialUDP("udp4", nil, raddr)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	defer connTwo.Close()
 
 	for {
 		n, addr, err := conn.ReadFromUDP(buffer)
@@ -51,5 +58,7 @@ func main() {
 			fmt.Println(err)
 			return
 		}
+
+		_, err = connTwo.Write(data)
 	}
 }
